@@ -1,0 +1,25 @@
+{
+	"name" : "gnkam/univ-savoie-menu",
+	"type" : "project",
+	"keywords" : ["univ", "savoie", "menu", "gnkam", "gnkw"],
+	"homepage" : "http://www.gnkw.org",
+	"license" : "AGPL-3.0",
+	"authors" : [
+		{
+			"name" : "Anthony Rey",
+			"email" : "anthony.rey@mailoo.org",
+			"homepage" : "http://www.gnkw.org",
+			"role" : "Developer"
+		}
+	],
+    "autoload": {
+        "psr-0": {
+            "": "src/"
+        }
+    },
+	"require": {
+        "php": ">=5.3.3",
+        "gnkw/http" : "2.*"
+    },
+    "minimum-stability": "dev"
+}
