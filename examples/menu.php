@@ -20,7 +20,7 @@
 	require_once(__DIR__ . '/../vendor/autoload.php');
 	
 	use Gnkam\Crous\Grenoble\Menu\Formalizer;
-
+	
 	##################
 	# Example of use #
 	##################
@@ -47,7 +47,6 @@
 	# Formalize Data
 	$formalizer = new Formalizer($cacheLink, $update);
 	$json = $formalizer->serviceMenu(7);
-	
 	# Show json
 	echo json_encode($json);
 ?>

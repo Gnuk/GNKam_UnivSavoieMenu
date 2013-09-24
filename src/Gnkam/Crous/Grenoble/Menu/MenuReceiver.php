@@ -63,6 +63,7 @@ class MenuReceiver
 		
 		# Get XML
 		$content = $resource->getContent();
+		$content = mb_convert_encoding($content, mb_internal_encoding(),'CP1252');
 		$rss = simplexml_load_string($content, 'SimpleXMLElement', LIBXML_NOCDATA);
 		libxml_use_internal_errors(true);
 		
