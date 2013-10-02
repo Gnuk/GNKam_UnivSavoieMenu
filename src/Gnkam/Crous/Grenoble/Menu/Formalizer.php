@@ -19,47 +19,15 @@
 */
 namespace Gnkam\Crous\Grenoble\Menu;
 
+use Gnkam\Base\Formalizer as BaseFormalizer;
+
 /**
  * Formalizer class
  * @author Anthony <anthony.rey@mailoo.org>
  * @since 23/09/2013
  */
-class Formalizer
+class Formalizer extends BaseFormalizer
 {
-
-	/**
-	* Cache directory
-	* @var string
-	*/
-	private $cache;
-	
-	/**
-	* Know there is a cache
-	* @var boolean
-	*/
-	private $cachingOk = false;
-	
-	/**
-	* Update time in seconds
-	* @var integer
-	*/
-	private $update;
-	
-	/**
-	 * Formalizer constructor
-	 * @param string $cache Cache directory
-	 * @param integer $update Update time in seconds
-	 */
-	public function __construct($cache, $update)
-	{
-		if(is_dir($cache))
-		{
-			$this->cache = rtrim($cache, '/');
-			$this->cachingOk = true;
-		}
-		
-		$this->update = $update;
-	}
 	
 	/**
 	* Call service for Menu
@@ -74,139 +42,17 @@ class Formalizer
 		{
 			return null;
 		}
-		
-		# Check for cache
-		if(!$this->cachingOk)
-		{
-			return null;
-		}
-		
-		# Create cache group directory if not exists
-		$fileDir = $this->cache . '/menu';
-		if(!is_dir($fileDir))
-		{
-			if(!mkdir($fileDir))
-			{
-				return null;
-			}
-		}
-		
-		# Files to create
-		$filePath = $fileDir . '/' . $id . '.json';
-		$filePathPending = $filePath . '.lock';
-		
-		# Initialisation
-		$json = array();
-		$recreate = false;
-		$currentTime = time();
-		
-		# Test pending
-		$pending = $this->testPending($filePathPending);
-
-		# File already exist
-		if(is_file($filePath))
-		{
-			$json = json_decode(file_get_contents($filePath), true);
-			if($pending)
-			{
-				$json['status'] = 'pending';
-			}
-			else
-			{
-				if(isset($json['updated']))
-				{
-					$updateTimeMax = $json['updated'] + $this->update;
-					if(time() > $updateTimeMax)
-					{
-						$recreate = true;
-					}
-				}
-				else
-				{
-					$recreate = true;
-				}
-			}
-		}
-		else
-		{
-			$recreate = true;
-		}
-		
-		# Recreate file
-		if($recreate)
-		{
-			if($pending AND is_file($filePath))
-			{
-				$json = json_decode(file_get_contents($filePath), true);
-				$json['status'] = 'pending';
-			}
-			else
-			{
-				# Create lock file
-				file_put_contents($filePathPending, time());
-				
-				# Receive the menu json data
-				$reciever = new MenuReceiver();
-				$json['data'] = $reciever->getArrayData($id);
-				
-				# Set meta menu informations
-				$json['menu'] = $id;
-				$json['status'] = 'last';
-				$json['updated'] = time();
-				$json['date'] = time();
-				
-				# Put it in a string
-				$string = json_encode($json);
-				
-				# Test data
-				if(!empty($string) AND count($json['data']) > 0)
-				{
-					file_put_contents($filePath, $string);
-				}
-				else
-				{
-					# Error case (example : impossible to contact ADE)
-					if(is_file($filePath))
-					{
-						# Old file exist : send old file
-						$json = json_decode(file_get_contents($filePath), true);
-						$json['status'] = 'old';
-						$json['updated'] = time() - $locktimeup;
-						$string = json_encode($json);
-						file_put_contents($filePath, $string);
-					}
-					else
-					{
-						# Send error
-						$json = array('error' => 'resource get failure');
-					}
-				}
-				# Remove lock file
-				unlink($filePathPending);
-			}
-		}
-		return $json;
+		return $this->service('menu', $id);
 	}
 	
 	/**
-	* Test if service is lockeb by another call
-	* @param string $file_Lockfile path
+	* Data recuperation for menu
+	* @param integer $id Menu to call
+	* @return array Menu in array representation
 	*/
-	public function testPending($file)
+	protected function menuData($id)
 	{
-		$locktimeup = $this->update/2;
-		if(is_file($file))
-		{
-			$lockTimeMax = file_get_contents($file) + $locktimeup;
-			if($currentTime > $lockTimeMax)
-			{
-				unlink($file);
-			}
-			else
-			{
-				return true;
-			}
-		}
-		return false;
+		$reciever = new MenuReceiver();
+		return $reciever->getArrayData($id);
 	}
 }
