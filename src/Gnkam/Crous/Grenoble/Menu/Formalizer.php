@@ -37,11 +37,6 @@ class Formalizer extends BaseFormalizer
 	public function serviceMenu($id)
 	{
 		# Check if empty
-		$id = intval($id);
-		if(empty($id))
-		{
-			return null;
-		}
 		return $this->service('menu', $id);
 	}
 	

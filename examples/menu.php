@@ -46,7 +46,7 @@
 	
 	# Formalize Data
 	$formalizer = new Formalizer($cacheLink, $update);
-	$json = $formalizer->serviceMenu(7);
+	$json = $formalizer->serviceMenu('abc');
 	# Show json
 	echo json_encode($json);
 ?>

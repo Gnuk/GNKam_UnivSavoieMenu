@@ -20,6 +20,7 @@
 namespace Gnkam\Crous\Grenoble\Menu;
 
 use Gnkw\Http\Rest\Client;
+use Gnkam\Base\ReceiverError;
 
 /**
  * MenuReceiver class
@@ -50,7 +51,8 @@ class MenuReceiver
 		# Test id
 		if(empty($id))
 		{
-			return null;
+			$error = new ReceiverError();
+			return $error->define('Bad request', 400);
 		}
 		$request = $this->client->get('/rss-menu-'.$id.'.htm');
 		$resource = $request->getResource();
@@ -58,7 +60,8 @@ class MenuReceiver
 		# Test Code
 		if(!$resource->code(200))
 		{
-			return null;
+			$error = new ReceiverError();
+			return $error->define('Impossible to contact distant website', 500);
 		}
 		
 		# Get XML
